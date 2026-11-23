@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Speech Acts Lab</title>
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--ink:#1f2430;--mute:#5d6572;--line:#dcd8cf;--acc:#2f5d8a;--accbg:#e4edf6;--ok:#1f7a4d;--okbg:#e2f3ea;--no:#a63d2f;--nobg:#f8e6e2;--wrap:#f1ece0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171a20;--card:#21252d;--ink:#e8e9ec;--mute:#a2a9b5;--line:#363b46;--acc:#8ab4e0;--accbg:#2a3748;--ok:#6fd0a0;--okbg:#1d3328;--no:#f09a8c;--nobg:#3a2421;--wrap:#2a2d34;color-scheme:dark}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Georgia,"Times New Roman",serif}
+main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.7rem;margin:.2em 0}h2{font-size:1.2rem;margin:.2em 0 .6em}
+.sub{color:var(--mute);margin:0 0 16px;font-family:system-ui,sans-serif;font-size:.95rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin:14px 0}
+.sans,button,.tag,label,textarea{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.tag{font-size:.78rem;background:var(--accbg);color:var(--acc);border-radius:20px;padding:3px 10px}
+.utt{background:var(--wrap);border-left:4px solid var(--acc);border-radius:6px;padding:12px 14px;font-size:1.15rem;margin:12px 0}
+.opts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
+button{font-size:.95rem;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:9px 14px;cursor:pointer}
+button:hover{border-color:var(--acc)}
+button.sel{background:var(--accbg);border-color:var(--acc);color:var(--acc);font-weight:600}
+button.go{background:var(--acc);color:var(--bg);border-color:var(--acc);font-weight:600}
+button:disabled{opacity:.45;cursor:not-allowed}
+.q{font-weight:600;margin:12px 0 4px;font-family:system-ui,sans-serif}
+.fb{border-radius:8px;padding:10px 12px;margin:8px 0;font-family:system-ui,sans-serif;font-size:.95rem}
+.ok{background:var(--okbg);color:var(--ok)}.no{background:var(--nobg);color:var(--no)}
+.alt{border-top:1px solid var(--line);padding:8px 0}.alt b{font-family:system-ui,sans-serif;font-size:.8rem;color:var(--acc);text-transform:uppercase;letter-spacing:.04em}
+textarea{width:100%;min-height:80px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);padding:10px;font-size:.95rem}
+.bar{height:6px;background:var(--line);border-radius:4px;overflow:hidden;margin:6px 0 14px}.bar i{display:block;height:100%;background:var(--acc)}
+.foot{font-size:.85rem;color:var(--mute);font-family:system-ui,sans-serif;border-top:1px solid var(--line);margin-top:28px;padding-top:12px}
+table{width:100%;border-collapse:collapse;font-family:system-ui,sans-serif;font-size:.9rem}td,th{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}
+.scroll{overflow-x:auto}
+</style>
+</head>
+<body>
+<main>
+<h1>Speech Acts Lab</h1>
+<p class="sub">An interactive simulator for exploring how speakers do things with words · Linguistics and Syntax · First year, English Language degree</p>
+<div id="app"></div>
+<div class="foot"><b>A note on the model.</b> The scenarios are simplified teaching situations. Pragmatic interpretation depends on context, tone, culture and the speakers’ shared history, so several answers here could be defended in other circumstances. Use the feedback as a starting point for discussion, not as a universal rule of politeness.</div>
+</main>
+<script>
+var S=[
+{d:"Academic",set:"Email to a lecturer you do not know well, the day before an essay deadline.",dist:"High",pow:"Lecturer has more power",imp:"High",
+ u:"I was wondering if you might be able to give me an extension on the essay.",act:"Request",dir:"Indirect",
+ why:"The speaker asks for something (an extension), but the form is a statement about a past thought (“I was wondering”). The past progressive and “might” soften the imposition. Function: request; form: declarative.",
+ alts:[["More direct","Please give me an extension.","Bare imperative: grammatical, but it ignores the power gap and sounds abrupt in an email to a lecturer."],["More formal","Would it be possible to request a short extension, given the circumstances?","Passive-like impersonal framing increases distance and formality."]],
+ r:"What other linguistic resources could soften this request further?"},
+{d:"Everyday",set:"Two flatmates in the living room. One is sitting next to an open window in winter.",dist:"Low",pow:"Equal",imp:"Low",
+ u:"It’s freezing in here.",act:"Request",dir:"Indirect",
+ why:"The sentence is a declarative describing the temperature, but in context it works as a request to close the window. The hearer must infer the intention; the speaker can deny having asked for anything.",
+ alts:[["More direct","Close the window, will you?","Imperative with a tag: acceptable between close equals."],["Equally indirect","Is it just me, or is it cold?","Invites the hearer to reach the conclusion alone."]],
+ r:"What would happen if the hearer answered only “Yes, it is”? Was the speech act successful?"},
+{d:"Work",set:"A manager speaks to a team member in the office before a client call.",dist:"Medium",pow:"Speaker has more power",imp:"Medium",
+ u:"Send me the report by five.",act:"Request",dir:"Direct",
+ why:"The imperative form matches the function: the speaker gives an instruction openly. Power asymmetry makes this unmarked in many workplaces, although some teams would expect softeners.",
+ alts:[["More polite","Could you send me the report by five, please?","Adds a conventionally indirect form and “please”, which lowers the pressure."],["Collaborative","I’d really appreciate the report by five if that works for you.","Frames the request as a favour and leaves room to negotiate."]],
+ r:"In which workplace cultures might the original be considered rude? Why?"},
+{d:"Everyday",set:"A colleague invites you to an after-work dinner on Friday. You cannot go.",dist:"Medium",pow:"Equal",imp:"Medium",
+ u:"I’d love to, but I’ve got a deadline on Friday.",act:"Refusal",dir:"Indirect",
+ why:"The word “no” never appears. The refusal is conveyed through an expression of positive feeling (“I’d love to”) followed by an excuse. Refusals are face-threatening, so speakers often avoid the explicit form.",
+ alts:[["More direct","No, I can’t come.","Clear, but it may sound cold between colleagues."],["Softer","I’m so sorry, I’d have loved to, but I’m swamped. Maybe next time?","Adds an apology and an offer to repair the relationship."]],
+ r:"Why is the explanation (“a deadline”) important to the success of the refusal?"},
+{d:"Work",set:"A junior employee arrives late to a team meeting and speaks to the team leader afterwards.",dist:"Medium",pow:"Hearer has more power",imp:"Medium",
+ u:"I’m so sorry I missed the meeting. It won’t happen again.",act:"Apology",dir:"Direct",
+ why:"“I’m sorry” is an explicit apology marker. The second sentence adds a promise of forbearance, a common strategy for repairing the relationship. The intensifier “so” increases sincerity.",
+ alts:[["Minimal","Sorry about that.","Acceptable for a minor offence between equals, too light here."],["With explanation","I apologise. My train was cancelled and I couldn’t reach you.","Adds an account, which can reduce responsibility but may sound like an excuse."]],
+ r:"When might giving an explanation weaken an apology instead of strengthening it?"},
+{d:"Academic",set:"Seminar discussion. A student responds to a classmate’s interpretation of a data set.",dist:"Medium",pow:"Equal",imp:"Medium",
+ u:"That’s an interesting point, but I wonder whether the data supports it.",act:"Disagreement",dir:"Indirect",
+ why:"The speaker opens with a positive comment, uses “but”, and expresses doubt as a personal reflection (“I wonder whether”). The disagreement is real but hedged, which protects the classmate’s face.",
+ alts:[["More direct","I disagree. The data doesn’t support that.","Explicit and efficient, but it may be heard as confrontational."],["Even softer","Maybe I’m missing something, but could the data be read differently?","Shifts responsibility to the speaker and poses a question."]],
+ r:"Is academic English always indirect when disagreeing? Think of other contexts."},
+{d:"Everyday",set:"A passer-by sees a stranger struggling with heavy shopping bags at a bus stop.",dist:"High",pow:"Equal",imp:"Low",
+ u:"Let me carry that for you.",act:"Offer",dir:"Direct",
+ why:"The imperative “let me” explicitly announces the offered action. Despite the imperative, the act benefits the hearer, so it is not experienced as an order. Form and function here are not in conflict, but the meaning depends on who benefits.",
+ alts:[["More tentative","Would you like a hand with those?","Leaves the hearer free to decline without embarrassment."],["Casual","Need a hand?","Reduced form, typical of informal spoken English."]],
+ r:"Why does an imperative not sound like an order in this example?"},
+{d:"Everyday",set:"Two friends leave the cinema. They have just watched a film they both expected to enjoy.",dist:"Low",pow:"Equal",imp:"Low",
+ u:"No way, that film was terrible!",act:"Disagreement",dir:"Direct",
+ why:"The speaker rejects the friend’s opinion openly (“no way”) and gives a strong evaluation. Close friends often tolerate and even enjoy direct disagreement because it signals solidarity and informality.",
+ alts:[["More mitigated","Really? I didn’t love it, to be honest.","Softer, uses a question and a personal stance."],["Formal","I’m afraid I must disagree with your assessment.","Would sound ironic between friends: register mismatch."]],
+ r:"What does this example suggest about the relationship between directness and politeness?"}
+];
+var ACTS=["Request","Offer","Refusal","Apology","Disagreement"],DIRS=["Direct","Indirect"];
+var i=-1,a1=null,a2=null,done=false,res=[],notes=[];
+var app=document.getElementById("app");
+function esc(t){return String(t).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c]})}
+function intro(){
+app.innerHTML='<div class="card"><h2>How it works</h2><p>You will read '+S.length+' short communicative situations. For each one, decide <b>which speech act</b> is performed and whether it is performed <b>directly or indirectly</b>. Then compare the feedback, explore alternative formulations and write a short reflection.</p>'+
+'<div class="scroll"><table><tr><th>Variable</th><th>What to look at</th></tr><tr><td>Social distance</td><td>How well do the speakers know each other?</td></tr><tr><td>Power</td><td>Does one speaker have authority over the other?</td></tr><tr><td>Imposition</td><td>How costly is the act for the hearer?</td></tr><tr><td>Form vs function</td><td>Declarative, interrogative or imperative: what is the speaker really doing?</td></tr></table></div>'+
+'<p><button class="go" onclick="next()">Start the lab</button></p></div>'}
+function opts(list,cur,fn){return '<div class="opts">'+list.map(function(o){return '<button class="'+(cur===o?'sel':'')+'" '+(done?'disabled':'')+' onclick="'+fn+'(\''+o+'\')">'+o+'</button>'}).join("")+'</div>'}
+function show(){
+var s=S[i];
+var h='<div class="sans" style="font-size:.85rem;color:var(--mute)">Scenario '+(i+1)+' of '+S.length+'</div><div class="bar"><i style="width:'+(i/S.length*100)+'%"></i></div>';
+h+='<div class="card"><div class="tags"><span class="tag">'+s.d+'</span><span class="tag">Distance: '+s.dist+'</span><span class="tag">Power: '+s.pow+'</span><span class="tag">Imposition: '+s.imp+'</span></div><p>'+s.set+'</p><div class="utt">“'+esc(s.u)+'”</div>';
+h+='<div class="q">1. Which speech act is being performed?</div>'+opts(ACTS,a1,"p1");
+h+='<div class="q">2. Is it performed directly or indirectly?</div>'+opts(DIRS,a2,"p2");
+if(!done)h+='<button class="go" '+((a1&&a2)?'':'disabled')+' onclick="check()">Check my analysis</button>';
+if(done){
+var o1=a1===s.act,o2=a2===s.dir;
+h+='<div class="fb '+(o1?'ok':'no')+'">'+(o1?'Speech act: correct. ':'Speech act: you chose '+a1+'; the best-supported answer is <b>'+s.act+'</b>. ')+'</div>';
+h+='<div class="fb '+(o2?'ok':'no')+'">'+(o2?'Directness: correct. ':'Directness: you chose '+a2+'; the best-supported answer is <b>'+s.dir+'</b>. ')+'</div>';
+h+='<p>'+s.why+'</p><div class="q">Alternative formulations</div>';
+s.alts.forEach(function(x){h+='<div class="alt"><b>'+x[0]+'</b><div class="utt" style="font-size:1rem;margin:6px 0">“'+esc(x[1])+'”</div><div class="sans" style="font-size:.9rem;color:var(--mute)">'+x[2]+'</div></div>'});
+h+='<div class="q">Reflection</div><p>'+s.r+'</p><textarea id="note" placeholder="Write your interpretation here and justify it…">'+esc(notes[i]||"")+'</textarea><p><button class="go" onclick="next()">'+(i<S.length-1?'Next scenario':'See summary')+'</button></p>';
+}
+app.innerHTML=h+'</div>'}
+function p1(v){a1=v;show()}function p2(v){a2=v;show()}
+function check(){done=true;res[i]=[a1===S[i].act,a2===S[i].dir];show()}
+function next(){
+if(done){var n=document.getElementById("note");if(n)notes[i]=n.value}
+i++;a1=a2=null;done=false;window.scrollTo(0,0);
+if(i>=S.length)return summary();show()}
+function summary(){
+var t=0,h='<div class="card"><h2>Summary</h2><div class="scroll"><table><tr><th>#</th><th>Utterance</th><th>Act</th><th>Direct/indirect</th></tr>';
+S.forEach(function(s,k){var r=res[k]||[0,0];t+=r[0]+r[1];h+='<tr><td>'+(k+1)+'</td><td>'+esc(s.u)+'</td><td>'+(r[0]?'✓':'✗ '+s.act)+'</td><td>'+(r[1]?'✓':'✗ '+s.dir)+'</td></tr>'});
+h+='</table></div><p><b>'+t+' / '+(S.length*2)+'</b> matching answers. A mismatch is not necessarily an error: it can be the start of a justified alternative reading.</p>';
+h+='<div class="q">Discussion prompts for class</div><p>1. Which scenario was hardest to classify, and why?<br>2. Which variable (distance, power, imposition) changed your interpretation most?<br>3. Can an utterance be both direct and indirect at once?</p>';
+h+='<p><button class="go" onclick="i=-1;res=[];notes=[];next()">Restart</button></p></div>';
+app.innerHTML=h}
+intro();
+</script>
+</body>
+</html>
